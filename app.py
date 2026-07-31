@@ -137,4 +137,4 @@ with gr.Blocks(theme=gr.themes.Soft(), title="NCERT Study App") as demo:
     submit_btn.click(process_query, inputs=[question_input, pdf_file, topic_input, num_questions, grade_level, mode], outputs=[questions_output, context_output, answer_output])
 
 if __name__ == "__main__":
-    demo.launch()
+    demo.launch(server_name="0.0.0.0", server_port=10000)
