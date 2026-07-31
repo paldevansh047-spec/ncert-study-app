@@ -1,21 +1,19 @@
+# app.py - NCERT Study App with Google Gemini API
 import os
 import PyPDF2
 import gradio as gr
-from openai import OpenAI
+import google.generativeai as genai
 import re
 
 # === GET API KEY FROM ENVIRONMENT ===
-DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
-if not DEEPSEEK_API_KEY:
-    print("⚠️ WARNING: DEEPSEEK_API_KEY not set. App will not work.")
+if not GEMINI_API_KEY:
+    print("⚠️ WARNING: GEMINI_API_KEY not set. App will not work.")
 
-# === INITIALIZE DEEPSEEK CLIENT ===
-if DEEPSEEK_API_KEY:
-    client = OpenAI(
-        api_key=DEEPSEEK_API_KEY,
-        base_url="https://api.deepseek.com"
-    )
+# === INITIALIZE GEMINI CLIENT ===
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
 
 # === PDF PROCESSING FUNCTIONS ===
 def extract_text_from_pdf(pdf_file):
@@ -54,7 +52,7 @@ def find_relevant_chunks(question, chunks, top_k=3):
     return [chunk for score, chunk in scored_chunks[:top_k] if score > 0]
 
 def generate_questions(topic, num_questions=5, grade_level="class 10"):
-    if not DEEPSEEK_API_KEY:
+    if not GEMINI_API_KEY:
         return "❌ API key not configured."
     try:
         prompt = f"""
@@ -64,16 +62,14 @@ def generate_questions(topic, num_questions=5, grade_level="class 10"):
         Format: Q1. [Question] Q2. [Question] ...
         Make questions: mix of easy, medium, hard, based on NCERT syllabus.
         """
-        response = client.chat.completions.create(
-            model="deepseek-v4-flash",
-            messages=[{"role": "user", "content": prompt}]
-        )
-        return response.choices[0].message.content
+        model = genai.GenerativeModel('gemini-2.0-flash')
+        response = model.generate_content(prompt)
+        return response.text
     except Exception as e:
         return f"❌ Error: {str(e)}"
 
 def answer_question(question, context_text=""):
-    if not DEEPSEEK_API_KEY:
+    if not GEMINI_API_KEY:
         return "❌ API key not configured."
     try:
         if context_text:
@@ -89,11 +85,9 @@ def answer_question(question, context_text=""):
             Student question: {question}
             Answer in a simple, clear way.
             """
-        response = client.chat.completions.create(
-            model="deepseek-v4-flash",
-            messages=[{"role": "user", "content": prompt}]
-        )
-        return response.choices[0].message.content
+        model = genai.GenerativeModel('gemini-2.0-flash')
+        response = model.generate_content(prompt)
+        return response.text
     except Exception as e:
         return f"❌ Error: {str(e)}"
 
