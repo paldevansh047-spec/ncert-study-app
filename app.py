@@ -62,7 +62,7 @@ def generate_questions(topic, num_questions=5, grade_level="class 10"):
         Format: Q1. [Question] Q2. [Question] ...
         Make questions: mix of easy, medium, hard, based on NCERT syllabus.
         """
-        model = genai.GenerativeModel('gemini-2.0-flash')
+        model = genai.GenerativeModel('gemini-1.5-flash')
         response = model.generate_content(prompt)
         return response.text
     except Exception as e:
@@ -85,7 +85,7 @@ def answer_question(question, context_text=""):
             Student question: {question}
             Answer in a simple, clear way.
             """
-        model = genai.GenerativeModel('gemini-2.0-flash')
+        model = genai.GenerativeModel('gemini-1.5-flash')
         response = model.generate_content(prompt)
         return response.text
     except Exception as e:
